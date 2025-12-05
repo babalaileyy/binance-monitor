@@ -1,4 +1,5 @@
 import ccxt
+from typing import List, Dict, Any, Optional
 from loguru import logger
 from binance_monitor.config import BinanceConfig
 
@@ -30,6 +31,36 @@ class BinanceClient:
             return float(price)
         except Exception as e:
             logger.error(f"Error fetching price for {symbol}: {e}")
+            raise
+
+    def get_klines(self, symbol: str, timeframe: str = '4h', limit: int = 2) -> List[Dict[str, Any]]:
+        """
+        获取 K 线数据
+        :param symbol: 交易对，如 'BTC/USDT'
+        :param timeframe: 时间周期，如 '1m', '1h', '4h', '1d'
+        :param limit: 获取数量，默认 2 (用于比较上一根和当前这根)
+        :return: K 线数据列表，每项包含 timestamp, open, high, low, close, volume
+        """
+        try:
+            # fetch_ohlcv 返回格式: [timestamp, open, high, low, close, volume]
+            ohlcv = self.exchange.fetch_ohlcv(symbol, timeframe, limit=limit)
+            
+            results = []
+            for candle in ohlcv:
+                results.append({
+                    'timestamp': candle[0],
+                    'open': float(candle[1]),
+                    'high': float(candle[2]),
+                    'low': float(candle[3]),
+                    'close': float(candle[4]),
+                    'volume': float(candle[5])
+                })
+            
+            # 按时间倒序排列（最新的在前面）
+            return sorted(results, key=lambda x: x['timestamp'], reverse=True)
+            
+        except Exception as e:
+            logger.error(f"Error fetching klines for {symbol} ({timeframe}): {e}")
             raise
 
     def check_connection(self) -> bool:
