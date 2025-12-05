@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "binance_monitor"
+version = "0.1.0"
+description = "A Python project to monitor Binance prices and send email notifications."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+  { name = "Developer", email = "dev@example.com" },
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "ccxt>=4.0.0",           # 用于连接币安API
+    "pydantic[email]>=2.0.0", # 数据验证 (支持email)
+    "pydantic-settings>=2.0.0", # 配置管理
+    "schedule>=1.2.0",       # 定时任务
+    "loguru>=0.7.0",         # 日志记录
+    "python-dotenv>=1.0.0"   # 环境变量加载
+]
+
+[project.urls]
+"Homepage" = "https://github.com/yourusername/binance-monitor"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q"
+testpaths = [
+    "tests",
+]

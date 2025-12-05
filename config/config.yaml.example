@@ -1,0 +1,20 @@
+# 监控配置
+monitor:
+  symbol: "BTC/USDT"
+  target_price_upper: 50000.0
+  target_price_lower: 30000.0
+  check_interval_seconds: 60
+
+# 邮件通知配置
+email:
+  smtp_server: "smtp.gmail.com"
+  smtp_port: 587
+  username: "your_email@gmail.com"
+  password: "your_app_password"
+  sender_email: "your_email@gmail.com"
+  receiver_email: "target_email@example.com"
+
+# 币安 API 配置 (如果只需要公开行情，apiKey 可以为空)
+binance:
+  api_key: ""
+  secret_key: ""
