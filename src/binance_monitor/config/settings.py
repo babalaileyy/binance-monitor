@@ -5,15 +5,16 @@ from binance_monitor.notification import EmailConfig
 
 class MonitorConfig(BaseModel):
     """监控任务配置"""
-    symbol: str = Field(..., description="监控交易对，例如 BTC/USDT")
-    target_price_upper: Optional[float] = Field(None, description="目标价格上限")
-    target_price_lower: Optional[float] = Field(None, description="目标价格下限")
-    check_interval_seconds: int = Field(60, description="检查间隔(秒)")
+    symbols: list[str] = Field(..., description="监控交易对列表，例如 ['BTC/USDT', 'ETH/USDT']")
+    timeframes: list[str] = Field(["4h", "1d"], description="监控周期列表")
+    check_interval_minutes: int = Field(60, description="扫描间隔(分钟)")
 
 class BinanceConfig(BaseModel):
     """币安API配置"""
     api_key: Optional[str] = Field(None, description="API Key (可选)")
     secret_key: Optional[str] = Field(None, description="Secret Key (可选)")
+    http_proxy: Optional[str] = Field(None, description="HTTP代理地址, 例如 http://127.0.0.1:7890")
+    https_proxy: Optional[str] = Field(None, description="HTTPS代理地址, 例如 http://127.0.0.1:7890")
 
 class AppConfig(BaseSettings):
     """应用总配置"""

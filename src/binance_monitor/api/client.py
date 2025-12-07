@@ -8,14 +8,25 @@ class BinanceClient:
     
     def __init__(self, config: BinanceConfig):
         # 如果只是查询行情，apiKey 和 secret 可以为空
-        self.exchange = ccxt.binance({
+        options = {
             'apiKey': config.api_key,
             'secret': config.secret_key,
             'enableRateLimit': True,
             'options': {
                 'defaultType': 'spot', # 默认为现货
             }
-        })
+        }
+        
+        # 配置代理
+        if config.http_proxy or config.https_proxy:
+            proxies = {}
+            if config.http_proxy:
+                proxies['http'] = config.http_proxy
+            if config.https_proxy:
+                proxies['https'] = config.https_proxy
+            options['proxies'] = proxies
+            
+        self.exchange = ccxt.binance(options)
         
     def get_price(self, symbol: str) -> float:
         """
