@@ -1,20 +1,24 @@
-# 监控配置
 monitor:
-  symbol: "BTC/USDT"
-  target_price_upper: 50000.0
-  target_price_lower: 30000.0
-  check_interval_seconds: 60
+  symbols:
+    - "BTC/USDT"
+    - "ETH/USDT"
+    - "SOL/USDT"
+  timeframes:
+    - "4h"
+    - "1d"
+  # check_interval_minutes: 60
+  # 使用 Cron 表达式：每4小时的第1分钟执行 (0:01, 4:01, 8:01 ...)
+  cron_expression: "1 */4 * * *"
 
-# 邮件通知配置
 email:
-  smtp_server: "smtp.gmail.com"
+  smtp_server: "smtp.qq.com"
   smtp_port: 587
-  username: "your_email@gmail.com"
-  password: "your_app_password"
-  sender_email: "your_email@gmail.com"
-  receiver_email: "target_email@example.com"
+  username: "your_email@qq.com"
+  password: "YOUR_AUTH_CODE"
+  sender_email: "your_email@qq.com"
+  receiver_email: "receiver_email@qq.com"
+  use_tls: true
 
-# 币安 API 配置 (如果只需要公开行情，apiKey 可以为空)
 binance:
-  api_key: ""
-  secret_key: ""
+  http_proxy: "http://127.0.0.1:7890"
+  https_proxy: "http://127.0.0.1:7890"

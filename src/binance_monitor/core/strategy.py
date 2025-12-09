@@ -4,45 +4,50 @@ from loguru import logger
 class StrategyAnalyzer:
     """策略分析器"""
 
-    def analyze(self, symbol: str, timeframe: str, klines: List[Dict[str, Any]]) -> Optional[str]:
+    def analyze(self, symbol: str, timeframe: str, klines: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
-        分析K线数据，如果符合策略则返回消息，否则返回None
-        :param klines: K线数据列表，按时间倒序排列（最新的在index 0）
-                       要求至少包含当前K线 + 前40根K线 = 41根
+        分析K线数据，返回分析结果
+        :return: 字典包含 'is_pinbar', 'is_priority', 'message' 等字段
         """
+        result = {
+            "is_pinbar": False,
+            "is_priority": False,
+            "symbol": symbol,
+            "timeframe": timeframe,
+            "timestamp": None,
+            "details": ""
+        }
+
         if len(klines) < 41:
             logger.warning(f"Insufficient data for {symbol} {timeframe}: {len(klines)} candles")
-            return None
+            return result
 
-        # 1. 获取最新的已完成K线 (假设index 0是当前正在进行的，index 1是刚完成的)
-        # 或者假设传入的是已经切分好的历史数据。
-        # 通常 fetch_ohlcv 返回包含当前未完成的K线。
-        # 我们这里取 index 1 (上一根) 作为要分析的目标 "Pinbar"
-        # index 2...41 是 "前40根"
-        
-        # 修正：根据常规逻辑，我们分析的是“刚走完的那一根”
+        # 1. 获取最新的已完成K线 (index 1)
         pinbar = klines[1] 
         prev_40 = klines[2:42] # 取前40根
         
+        result["timestamp"] = pinbar['timestamp']
+        
         # 2. 判断是否是 Pinbar (流程1)
         if not self._is_pinbar(pinbar):
-            return None
+            return result
             
+        result["is_pinbar"] = True
         logger.info(f"Pinbar detected for {symbol} {timeframe} at {pinbar['timestamp']}")
 
-        # 3. 判断上下文 (流程2)
+        # 3. 判断上下文 (流程2) - 如果满足则标记为重点
         if self._check_context(pinbar, prev_40):
-            # 4. 触发通知 (流程3)
+            result["is_priority"] = True
             direction = "UP" if self._get_main_shadow_direction(pinbar) == "UP" else "DOWN"
-            return (
-                f"Pinbar Alert for {symbol} ({timeframe})\n"
-                f"Time: {pinbar['timestamp']}\n"
-                f"Price: Open={pinbar['open']}, High={pinbar['high']}, Low={pinbar['low']}, Close={pinbar['close']}\n"
-                f"Direction: {direction} (Reversal Signal)\n"
-                f"Condition met: Pinbar with valid context."
+            direction_cn = "看涨" if direction == "UP" else "看跌"
+            result["details"] = (
+                f"方向: {direction_cn} (反转信号), "
+                f"价格: 开={pinbar['open']}, 高={pinbar['high']}, 低={pinbar['low']}, 收={pinbar['close']}"
             )
-            
-        return None
+        else:
+            result["details"] = f"价格: 开={pinbar['open']}, 高={pinbar['high']}, 低={pinbar['low']}, 收={pinbar['close']}"
+
+        return result
 
     def _is_pinbar(self, kline: Dict[str, Any]) -> bool:
         """

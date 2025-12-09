@@ -7,7 +7,8 @@ class MonitorConfig(BaseModel):
     """监控任务配置"""
     symbols: list[str] = Field(..., description="监控交易对列表，例如 ['BTC/USDT', 'ETH/USDT']")
     timeframes: list[str] = Field(["4h", "1d"], description="监控周期列表")
-    check_interval_minutes: int = Field(60, description="扫描间隔(分钟)")
+    check_interval_minutes: int = Field(60, description="扫描间隔(分钟), 如果使用 cron_expression 则忽略此项")
+    cron_expression: Optional[str] = Field(None, description="Cron表达式，例如 '1 */4 * * *'")
 
 class BinanceConfig(BaseModel):
     """币安API配置"""
